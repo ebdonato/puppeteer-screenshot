@@ -1,0 +1,16 @@
+{
+  "name": "puppeteer-screenshot",
+  "version": "1.0.0",
+  "description": "Get screenshot for some site",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "author": "Eduardo Batista Donato",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.6",
+    "puppeteer": "^5.5.0"
+  }
+}
