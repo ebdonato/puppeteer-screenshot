@@ -19,7 +19,7 @@ const printscreen = function (response) {
     let _page
     console.log("Obtendo screenshot...")
     puppeteer
-        .launch()
+        .launch({ args: ['--no-sandbox'] })
         .then(browser => _browser = browser)
         .then(browser => _page = browser.newPage())
         .then(page => page.goto(info.url, { waitUntil: 'networkidle0' }))
