@@ -4,6 +4,7 @@
   "description": "Get screenshot for some site and serve as an image",
   "main": "index.js",
   "scripts": {
+    "dev": "env-cmd nodemon index.js",
     "start": "nodemon index.js"
   },
   "author": "Eduardo Batista Donato",
@@ -12,5 +13,8 @@
     "express": "^4.17.1",
     "nodemon": "^2.0.6",
     "puppeteer": "^5.5.0"
+  },
+  "devDependencies": {
+    "env-cmd": "^10.1.0"
   }
 }

@@ -2,7 +2,12 @@ const express = require('express')
 const puppeteer = require('puppeteer');
 const fs = require("fs");
 
-const info = fs.existsSync('info.json') ? JSON.parse(fs.readFileSync('info.json')) : { screenshotDate: "1981-11-23", url: "https://www.google.com" }
+const default_info = {
+    screenshotDate: process.env.DEFAULT_DATE || "1981-11-23",
+    url: process.env.DEFAULT_URL || "https://www.google.com"
+}
+
+const info = fs.existsSync('info.json') ? JSON.parse(fs.readFileSync('info.json')) : default_info
 
 const app = express()
 const port = 3000
@@ -25,6 +30,7 @@ const printscreen = function (response) {
             fs.writeFileSync('info.json', JSON.stringify(newInfo), err => { if (err) { throw (err) } })
             console.log("Nova screenshot gerada.")
             if (response) {
+                console.log("Enviando nova screenshot.")
                 response.sendFile(screenShotPath, { root: __dirname })
             }
         })
@@ -35,7 +41,9 @@ const printscreen = function (response) {
             }
         })
         .finally(() => {
-            _browser.close()
+            if (_browser) {
+                _browser.close()
+            }
         })
 }
 
@@ -45,13 +53,14 @@ function dateDiffInDays(dateBefore, dateAfter) {
     return Math.floor((dt2.getTime() - dt1.getTime()) / (1000 * 3600 * 24))
 }
 
-const diff = dateDiffInDays(info.screenshotDate || "1981-11-23", new Date(Date.now()))
+const diff = dateDiffInDays(info.screenshotDate, new Date(Date.now()))
 
 app.get('/', async (request, response) => {
     //console.log(request.query)
     if (diff >= 1 || !fs.existsSync(screenShotPath)) {
         printscreen(response)
     } else {
+        console.log("Enviando screenshot gerada anteriormente.")
         response.sendFile(screenShotPath, { root: __dirname })
     }
 })
