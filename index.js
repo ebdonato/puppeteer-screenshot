@@ -7,7 +7,7 @@ const default_info = {
     url: process.env.DEFAULT_URL || "https://www.google.com"
 }
 
-const info = fs.existsSync('info.json') ? JSON.parse(fs.readFileSync('info.json')) : default_info
+let info = fs.existsSync('info.json') ? JSON.parse(fs.readFileSync('info.json')) : default_info
 
 const app = express()
 const port = 3000
@@ -26,8 +26,8 @@ const printscreen = function (response) {
         .then(() => _page)
         .then(page => page.screenshot({ path: screenShotPath }))
         .then(() => {
-            const newInfo = { screenshotDate: Date.now(), url: info.url }
-            fs.writeFileSync('info.json', JSON.stringify(newInfo), err => { if (err) { throw (err) } })
+            info = { screenshotDate: Date.now(), url: info.url }
+            fs.writeFileSync('info.json', JSON.stringify(info), err => { if (err) { throw (err) } })
             console.log("Nova screenshot gerada.")
             if (response) {
                 console.log("Enviando nova screenshot.")
@@ -53,9 +53,9 @@ function dateDiffInDays(dateBefore, dateAfter) {
     return Math.floor((dt2.getTime() - dt1.getTime()) / (1000 * 3600 * 24))
 }
 
-const diff = dateDiffInDays(info.screenshotDate, new Date(Date.now()))
-
 app.get('/', async (request, response) => {
+    const diff = dateDiffInDays(info.screenshotDate, new Date(Date.now()))
+
     //console.log(request.query)
     if (diff >= 1 || !fs.existsSync(screenShotPath)) {
         printscreen(response)
@@ -67,5 +67,6 @@ app.get('/', async (request, response) => {
 
 //escutando
 app.listen(process.env.PORT || port, () => {
+    console.log(`Current version: ${process.env.npm_package_version}`)
     console.log(`Express listening at port: ${port}`)
 })
