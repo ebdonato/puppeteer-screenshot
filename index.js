@@ -53,7 +53,13 @@ function dateDiffInDays(dateBefore, dateAfter) {
     return Math.floor((dt2.getTime() - dt1.getTime()) / (1000 * 3600 * 24))
 }
 
-app.get('/', async (request, response) => {
+app.get('/hello', (request, response) => {
+    //just send hello
+    //some endpoint to call to keep it alive
+    response.send('hello')
+})
+
+app.get('/', (request, response) => {
     const diff = dateDiffInDays(info.screenshotDate, new Date(Date.now()))
 
     //console.log(request.query)
