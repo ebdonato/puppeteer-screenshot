@@ -2,10 +2,11 @@ const express = require('express')
 const puppeteer = require('puppeteer')
 const fs = require("fs")
 const firebaseAdmin = require('firebase-admin')
+const base64json = require("base64json")
 
 //path to Firebase Admin SDK private Key -> get it at https://console.firebase.google.com/project/em-coordenadas/settings/serviceaccounts/adminsdk
 firebaseAdmin.initializeApp({
-    credential: firebaseAdmin.credential.cert(require('./serviceAccountKey.json')),
+    credential: firebaseAdmin.credential.cert(base64json.parse(process.env.SERVICE_KEY_BASE64)),
     storageBucket: process.env.FIREBASE_STORAGE_URL
 });
 
