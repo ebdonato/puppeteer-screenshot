@@ -97,9 +97,15 @@ function loadScreenShotFromFirebase() {
 }
 
 function dateDiffInDays(dateBefore, dateAfter) {
-    const dt1 = new Date(dateBefore);
-    const dt2 = new Date(dateAfter);
-    return Math.floor((dt2.getTime() - dt1.getTime()) / (1000 * 3600 * 24))
+    const date_before = new Date(dateBefore)
+    const date_after = new Date(dateAfter)
+
+    const updateHour = 3 // the time when the information captured is really updated
+
+    const day_before = date_before.getDate() - (date_before.getHours() < updateHour ? 1 : 0)
+    const day_after = date_after.getDate()
+
+    return day_after - day_before
 }
 
 app.get('/hello', (request, response) => {
