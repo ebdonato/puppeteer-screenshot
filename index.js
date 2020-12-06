@@ -15,6 +15,8 @@ const bucket = firebaseAdmin.storage().bucket()
 const app = express()
 const port = 3000
 
+const updateHour = process.env.UPDATE_HOUR || 3 // the time when the information captured is really updated
+
 let info = {}
 const screenShotPath = 'screenshot.png'
 
@@ -99,8 +101,6 @@ function loadScreenShotFromFirebase() {
 function dateDiffInDays(dateBefore, dateAfter) {
     const date_before = new Date(dateBefore)
     const date_after = new Date(dateAfter)
-
-    const updateHour = 3 // the time when the information captured is really updated
 
     const day_before = date_before.getDate() - (date_before.getHours() < updateHour ? 1 : 0)
     const day_after = date_after.getDate()
