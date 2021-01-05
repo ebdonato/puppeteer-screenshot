@@ -11,3 +11,18 @@ Running Puppeteer on Heroku requires some additional dependencies that aren't in
 The url for the buildpack is https://github.com/jontewks/puppeteer-heroku-buildpack
 
 [Reference](https://stackoverflow.com/questions/63177218/puppeteer-on-heroku-failed-to-launch-the-browser-process)
+
+## Firebase Rule
+
+Only Firebase admin can access the server previously saved information:
+
+``` json
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+```
