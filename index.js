@@ -102,8 +102,14 @@ function dateDiffInDays(dateBefore, dateAfter) {
     const date_before = new Date(dateBefore)
     const date_after = new Date(dateAfter)
 
-    const day_before = date_before.getDate() - (date_before.getHours() < updateHour ? 1 : 0)
-    const day_after = date_after.getDate()
+    const ref_before = date_before.getFullYear() * 10000 + date_before.getMonth() * 100 + date_before.getDate()
+    const ref_after = date_after.getFullYear() * 10000 + date_after.getMonth() * 100 + date_after.getDate()
+
+    const day_before = ref_before - (date_before.getHours() < updateHour ? 1 : 0)
+    const day_after = ref_after
+
+    console.log("🚀 ~ dateDiffInDays ~ day_before", day_before)
+    console.log("🚀 ~ dateDiffInDays ~ day_after", day_after)
 
     return day_after - day_before
 }
