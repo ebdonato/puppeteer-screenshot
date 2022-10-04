@@ -1,140 +1,72 @@
-const express = require('express')
-const puppeteer = require('puppeteer')
-const fs = require("fs")
-const firebaseAdmin = require('firebase-admin')
-const base64json = require("base64json")
+const app = require("express")()
+const puppeteer = require("puppeteer")
+const {accessSync, constants} = require("node:fs")
 
-//path to Firebase Admin SDK private Key -> get it at https://console.firebase.google.com/project/em-coordenadas/settings/serviceaccounts/adminsdk
-firebaseAdmin.initializeApp({
-    credential: firebaseAdmin.credential.cert(base64json.parse(process.env.SERVICE_KEY_BASE64)),
-    storageBucket: process.env.FIREBASE_STORAGE_URL
-});
+const PORT = process.env.PORT || 3000
+const URL = process.env.URL || "https://www.github.com/ebdonato"
 
-const bucket = firebaseAdmin.storage().bucket()
+const SCREENSHOT_PATH = "screenshot.png"
 
-const app = express()
-const port = 3000
-
-const updateHour = process.env.UPDATE_HOUR || 3 // the time when the information captured is really updated
-
-let info = {}
-const screenShotPath = 'screenshot.png'
-
-function setInfoToDefault() {
-    info = {
-        screenshotDate: 1
-    }
-}
-
-function printScreen(response) {
-    let _browser
-    let _page
+async function printScreen() {
     console.log("Obtendo screenshot...")
-    puppeteer
-        .launch({ args: ['--no-sandbox'] })
-        .then(browser => _browser = browser)
-        .then(browser => _page = browser.newPage())
-        .then(page => page.goto(process.env.URL || "https://www.github.com/ebdonato", { waitUntil: 'networkidle0' }))
-        .then(() => _page)
-        .then(page => page.screenshot({ path: screenShotPath }))
-        .then(() => {
-            console.log("Nova screenshot gerada.")
-            if (response) {
-                console.log("Enviando nova screenshot.")
-                response.sendFile(screenShotPath, { root: __dirname })
-            }
 
-            info = { screenshotDate: Date.now() }
-            saveScreenShotToFirebase()
-        })
-        .catch(err => {
-            console.error(err)
-            if (response) {
-                response.send("Algo deu errado!")
-            }
-        })
-        .finally(() => {
-            if (_browser) {
-                _browser.close()
-            }
-        })
-}
+    let browser = null
 
-function saveScreenShotToFirebase() {
-    bucket.upload(screenShotPath, {
-        uploadType: 'media',
-        metadata: {
-            metadata: info
-        }
-
-    }, err => {
-        if (err) {
-            console.log("Erro ao salvar arquivo no Firebase Storage")
-        }
-    })
-}
-
-function loadScreenShotFromFirebase() {
-    const firebaseFile = bucket.file(screenShotPath)
-
-    firebaseFile.exists()
-        .then(fileExists => {
-            if (fileExists[0]) {
-                const options = {
-                    destination: './' + screenShotPath,
-                }
-
-                firebaseFile.download(options)
-                    .catch(console.error)
-
-                firebaseFile.getMetadata()
-                    .then(data => {
-                        info = data[0].metadata
-                    })
-                    .catch(err => {
-                        console.log(err)
-                    })
-            }
-        }).catch(console.error)
-}
-
-function dateDiffInDays(dateBefore, dateAfter) {
-    const date_before = new Date(dateBefore)
-    const date_after = new Date(dateAfter)
-
-    const ref_before = date_before.getFullYear() * 10000 + date_before.getMonth() * 100 + date_before.getDate()
-    const ref_after = date_after.getFullYear() * 10000 + date_after.getMonth() * 100 + date_after.getDate()
-
-    const day_before = ref_before - (date_before.getHours() < updateHour ? 1 : 0)
-    const day_after = ref_after
-
-    console.log("🚀 ~ dateDiffInDays ~ day_before", day_before)
-    console.log("🚀 ~ dateDiffInDays ~ day_after", day_after)
-
-    return day_after - day_before
-}
-
-app.get('/hello', (request, response) => {
-    //just send hello
-    //some endpoint to call to keep it alive
-    response.send('hello')
-})
-
-app.get('/', (request, response) => {
-    const diff = dateDiffInDays(parseInt(info.screenshotDate), Date.now())
-
-    if (diff >= 1 || !fs.existsSync(screenShotPath)) {
-        printScreen(response)
-    } else {
-        console.log("Enviando screenshot gerada anteriormente.")
-        response.sendFile(screenShotPath, { root: __dirname })
+    try {
+        browser = await puppeteer.launch({args: ["--no-sandbox"]})
+        const page = await browser.newPage()
+        console.log(`Going to ${URL}`)
+        await page.goto(URL, {waitUntil: "networkidle0"})
+        await page.screenshot({path: SCREENSHOT_PATH})
+        console.log("File saved")
+    } catch (error) {
+        throw error
     }
+
+    if (browser) {
+        browser.close()
+    }
+
+    return "New screenshot saved"
+}
+
+async function send() {}
+
+app.get("/print", (request, response) => {
+    console.log("Take screenshot")
+
+    printScreen()
+        .then((message) => {
+            response.send({message})
+        })
+        .catch((error) => {
+            console.error(error.message)
+            response.status(500).send({error: "Something goes wrong!", details: error.message})
+        })
 })
 
-//escutando
-app.listen(process.env.PORT || port, () => {
-    setInfoToDefault()
+app.get("/", (request, response) => {
+    console.log("Send screenshot")
+
+    try {
+        accessSync(SCREENSHOT_PATH, constants.F_OK)
+        response.sendFile(SCREENSHOT_PATH, {root: __dirname})
+        return
+    } catch (error) {
+        console.error(error.message)
+    }
+
+    printScreen()
+        .then(() => {
+            response.sendFile(SCREENSHOT_PATH, {root: __dirname})
+        })
+        .catch((error) => {
+            console.error(error.message)
+            response.status(500).send({error: "Something goes wrong!", details: error.message})
+        })
+})
+
+app.listen(process.env.PORT || PORT, () => {
     console.log(`Current version: ${process.env.npm_package_version}`)
-    console.log(`Express listening at port: ${port}`)
-    loadScreenShotFromFirebase()
+    console.log(`Express listening at port: ${PORT}`)
 })
