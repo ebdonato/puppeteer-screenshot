@@ -1,7 +1,4 @@
 {
-    "ignore": [
-        "/info.json",
-        "/screenshot.png"
-    ],
-    "delay": "1500"
+    "ignore": ["/screenshot.png"],
+    "delay": "1000"
 }

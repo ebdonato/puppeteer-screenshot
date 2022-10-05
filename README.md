@@ -4,25 +4,28 @@
 
 The goal is generate a screenshot of some web site to be embed some place else.
 
-## Heroku
+## Routes
 
-Running Puppeteer on Heroku requires some additional dependencies that aren't included on the Linux box that Heroku spins up for you. To add the dependencies on deploy, add the Puppeteer Heroku buildpack to the list of buildpacks for your app under Settings > Buildpacks.
+### Screenshot
 
-The url for the buildpack is https://github.com/jontewks/puppeteer-heroku-buildpack
+> GET /
 
-[Reference](https://stackoverflow.com/questions/63177218/puppeteer-on-heroku-failed-to-launch-the-browser-process)
+Get the current saved screenshot
 
-## Firebase Rule
+### Print
 
-Only Firebase admin can access the server previously saved information:
+> GET /print
 
-``` json
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
-    }
-  }
-}
-```
+Take a screenshot and save it
+
+## Configuration
+
+Configuration by environment variables:
+
+| Variable       | Meaning                              | Default                           |
+| -------------- | ------------------------------------ | --------------------------------- |
+| PORT           | Outgoing application port            | 3000                              |
+| URL            | Webpage to screenshot                | <https://www.github.com/ebdonato> |
+| AUTO_HOURS[^1] | Hours of day to renew the screenshot | 9 21                              |
+
+[^1]: Only natural integer number equal or greater then 0 and lower than 24
