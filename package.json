@@ -4,7 +4,11 @@
     "description": "Get screenshot for some site and serve as an image",
     "main": "index.js",
     "scripts": {
-        "dev": "nodemon index.js"
+        "dev": "nodemon index.js",
+        "start": "pm2 start ecosystem.config.js",
+        "delete": "pm2 delete puppeteer-screenshot",
+        "stop": "pm2 stop puppeteer-screenshot",
+        "restart": "pm2 restart puppeteer-screenshot"
     },
     "author": "Eduardo Batista Donato",
     "license": "ISC",
@@ -12,9 +16,11 @@
         "dotenv-defaults": "^5.0.2",
         "express": "^4.18.1",
         "node-cron": "^3.0.2",
+        "pm2": "^5.2.0",
         "puppeteer": "^18.0.5"
     },
     "devDependencies": {
-        "nodemon": "^2.0.20"
+        "nodemon": "^2.0.20",
+        "prettier": "^2.7.1"
     }
 }

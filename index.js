@@ -2,7 +2,7 @@ require("dotenv-defaults").config()
 const app = require("express")()
 const puppeteer = require("puppeteer")
 const cron = require("node-cron")
-const {accessSync, constants} = require("node:fs")
+const { accessSync, constants } = require("node:fs")
 
 const PORT = process.env.PORT
 const URL = process.env.URL
@@ -24,11 +24,11 @@ async function printScreen() {
     let browser = null
 
     try {
-        browser = await puppeteer.launch({args: ["--no-sandbox"]})
+        browser = await puppeteer.launch({ args: ["--no-sandbox"] })
         const page = await browser.newPage()
         logger.log(`Going to ${URL}`)
-        await page.goto(URL, {waitUntil: "networkidle0"})
-        await page.screenshot({path: SCREENSHOT_PATH})
+        await page.goto(URL, { waitUntil: "networkidle0" })
+        await page.screenshot({ path: SCREENSHOT_PATH })
         logger.log("File saved")
     } catch (error) {
         throw error
@@ -48,11 +48,14 @@ app.get("/print", (request, response) => {
 
     printScreen()
         .then((message) => {
-            response.send({message})
+            response.send({ message })
         })
         .catch((error) => {
             logger.error(error.message)
-            response.status(500).send({error: "Something goes wrong!", details: error.message})
+            response.status(500).send({
+                error: "Something goes wrong!",
+                details: error.message,
+            })
         })
 })
 
@@ -61,7 +64,7 @@ app.get("/", (request, response) => {
 
     try {
         accessSync(SCREENSHOT_PATH, constants.F_OK)
-        response.sendFile(SCREENSHOT_PATH, {root: __dirname})
+        response.sendFile(SCREENSHOT_PATH, { root: __dirname })
         return
     } catch (error) {
         logger.error(error.message)
@@ -69,16 +72,23 @@ app.get("/", (request, response) => {
 
     printScreen()
         .then(() => {
-            response.sendFile(SCREENSHOT_PATH, {root: __dirname})
+            response.sendFile(SCREENSHOT_PATH, { root: __dirname })
         })
         .catch((error) => {
             logger.error(error.message)
-            response.status(500).send({error: "Something goes wrong!", details: error.message})
+            response.status(500).send({
+                error: "Something goes wrong!",
+                details: error.message,
+            })
         })
 })
 
 const isNaturalNumber = (number) =>
-    typeof number === "number" && Number.isFinite(number) && Number.isInteger(number) && number >= 0 && number < 24
+    typeof number === "number" &&
+    Number.isFinite(number) &&
+    Number.isInteger(number) &&
+    number >= 0 &&
+    number < 24
 
 app.listen(process.env.PORT || PORT, () => {
     const auto_hours = process.env.AUTO_HOURS.split(" ")
