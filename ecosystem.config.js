@@ -3,7 +3,6 @@ module.exports = {
         {
             name: "puppeteer-screenshot",
             script: "index.js",
-            watch: ".",
         },
     ],
 }

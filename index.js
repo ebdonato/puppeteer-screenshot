@@ -1,4 +1,5 @@
 require("dotenv-defaults").config()
+const { version } = require("./package.json")
 const app = require("express")()
 const puppeteer = require("puppeteer")
 const cron = require("node-cron")
@@ -6,6 +7,7 @@ const { accessSync, constants } = require("node:fs")
 
 const PORT = process.env.PORT
 const URL = process.env.URL
+const EXECUTABLE_PATH = process.env.EXECUTABLE_PATH
 
 const SCREENSHOT_PATH = "screenshot.png"
 
@@ -18,13 +20,21 @@ const logger = {
     },
 }
 
+const puppeteerConfig = { args: ["--no-sandbox"] }
+
+if (EXECUTABLE_PATH) {
+    Object.assign(puppeteerConfig, {
+        executablePath: EXECUTABLE_PATH,
+    })
+}
+
 async function printScreen() {
     logger.log("Obtendo screenshot...")
 
     let browser = null
 
     try {
-        browser = await puppeteer.launch({ args: ["--no-sandbox"] })
+        browser = await puppeteer.launch(puppeteerConfig)
         const page = await browser.newPage()
         logger.log(`Going to ${URL}`)
         await page.goto(URL, { waitUntil: "networkidle0" })
@@ -110,6 +120,7 @@ app.listen(process.env.PORT || PORT, () => {
         })
     }
 
-    logger.log(`Current version: ${process.env.npm_package_version}`)
+    logger.log(`Current URL: ${URL}`)
+    logger.log(`Current version: ${process.env.npm_package_version || version}`)
     logger.log(`Express listening at port: ${PORT}`)
 })
