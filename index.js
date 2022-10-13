@@ -4,6 +4,7 @@ const app = require("express")()
 const puppeteer = require("puppeteer")
 const cron = require("node-cron")
 const { accessSync, constants } = require("node:fs")
+const { response } = require("express")
 
 const PORT = process.env.PORT
 const URL = process.env.URL
@@ -51,7 +52,11 @@ async function printScreen() {
     return "New screenshot saved"
 }
 
-async function send() {}
+app.get("/health", (request, response) => {
+    response.send({
+        message: "It's is running!",
+    })
+})
 
 app.get("/print", (request, response) => {
     logger.log("Take screenshot")
@@ -100,26 +105,26 @@ const isNaturalNumber = (number) =>
     number >= 0 &&
     number < 24
 
+const auto_hours = process.env.AUTO_HOURS.split(" ")
+    .map((number) => +number)
+    .filter(isNaturalNumber)
+    .filter((value, index, self) => self.indexOf(value) === index)
+    .sort((a, b) => a - b)
+
+if (auto_hours.length) {
+    logger.log(`Update screenshot at this hour(s):`, auto_hours)
+
+    cron.schedule(`0 0 ${auto_hours.join(",")} * * *`, async () => {
+        logger.log("Automatically take screenshot", new Date().toString())
+        try {
+            await printScreen()
+        } catch (error) {
+            logger.error(error.message)
+        }
+    })
+}
+
 app.listen(process.env.PORT || PORT, () => {
-    const auto_hours = process.env.AUTO_HOURS.split(" ")
-        .map((number) => +number)
-        .filter(isNaturalNumber)
-        .filter((value, index, self) => self.indexOf(value) === index)
-        .sort((a, b) => a - b)
-
-    if (auto_hours.length) {
-        logger.log(`Update screenshot at this hour(s):`, auto_hours)
-
-        cron.schedule(`0 0 ${auto_hours.join(",")} * * *`, async () => {
-            logger.log("Automatically take screenshot", new Date().toString())
-            try {
-                await printScreen()
-            } catch (error) {
-                logger.error(error.message)
-            }
-        })
-    }
-
     logger.log(`Current URL: ${URL}`)
     logger.log(`Current version: ${process.env.npm_package_version || version}`)
     logger.log(`Express listening at port: ${PORT}`)

@@ -1,4 +1,6 @@
-@baseURL = http://localhost:3000
+@host=http://localhost
+@port={{$dotenv PORT}}
+@baseURL={{host}}:{{port}}
 
 ###
 # @name getScreenShot
@@ -7,3 +9,7 @@ GET {{baseURL}}/
 ###
 # @name print
 GET {{baseURL}}/print
+
+###
+# @name health
+GET {{baseURL}}/health
