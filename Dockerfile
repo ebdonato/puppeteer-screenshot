@@ -4,11 +4,13 @@ FROM node:16
 ARG URL=https://www.github.com/ebdonato
 ARG PORT=3000
 ARG AUTO_HOURS="9 21"
+ARG TIMEOUT=300
 
 # environment variables
 ENV URL=${URL}
 ENV PORT=${PORT}
 ENV AUTO_HOURS=${AUTO_HOURS}
+ENV TIMEOUT=${TIMEOUT}
 
 # We don't need the standalone Chromium
 ENV EXECUTABLE_PATH=/usr/bin/google-chrome

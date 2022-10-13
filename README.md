@@ -22,13 +22,16 @@ Take a screenshot and save it
 
 Configuration by environment variables:
 
-| Variable       | Meaning                              | Default                           |
-| -------------- | ------------------------------------ | --------------------------------- |
-| PORT           | Outgoing application port            | 3000                              |
-| URL            | Webpage to screenshot                | <https://www.github.com/ebdonato> |
-| AUTO_HOURS[^1] | Hours of day to renew the screenshot | 9 21                              |
+| Variable        | Meaning                                                   | Default                           |
+| --------------- | --------------------------------------------------------- | --------------------------------- |
+| PORT            | Outgoing application port                                 | 3000                              |
+| URL             | Webpage to screenshot                                     | <https://www.github.com/ebdonato> |
+| AUTO_HOURS[^1]  | Hours of day to renew the screenshot                      | 9 21                              |
+| TIMEOUT[^2]     | Navigation timeout (in seconds)                           | 300                               |
+| EXECUTABLE_PATH | Path to Chrome, leave blank to use Puppetter embedded one |                                   |
 
 [^1]: Only natural integer number equal or greater then 0 and lower than 24
+[^2]: This value is used to Puppeteer page default timeout
 
 ## Docker
 

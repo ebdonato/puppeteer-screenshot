@@ -8,6 +8,7 @@ const { accessSync, constants } = require("node:fs")
 const PORT = process.env.PORT
 const URL = process.env.URL
 const EXECUTABLE_PATH = process.env.EXECUTABLE_PATH
+const TIMEOUT = process.env.TIMEOUT * 1000
 
 const SCREENSHOT_PATH = "screenshot.png"
 
@@ -32,8 +33,6 @@ async function printScreen() {
     logger.log("Obtendo screenshot...")
 
     let browser = null
-
-    const TIMEOUT = 300 * 1000
 
     try {
         browser = await puppeteer.launch(puppeteerConfig)
