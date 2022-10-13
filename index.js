@@ -4,7 +4,6 @@ const app = require("express")()
 const puppeteer = require("puppeteer")
 const cron = require("node-cron")
 const { accessSync, constants } = require("node:fs")
-const { response } = require("express")
 
 const PORT = process.env.PORT
 const URL = process.env.URL
@@ -34,11 +33,14 @@ async function printScreen() {
 
     let browser = null
 
+    const TIMEOUT = 300 * 1000
+
     try {
         browser = await puppeteer.launch(puppeteerConfig)
         const page = await browser.newPage()
+        page.setDefaultNavigationTimeout(TIMEOUT)
         logger.log(`Going to ${URL}`)
-        await page.goto(URL, { timeout: 300 * 1000, waitUntil: "networkidle0" })
+        await page.goto(URL, { waitUntil: "networkidle0" })
         await page.screenshot({ path: SCREENSHOT_PATH })
         logger.log("File saved")
     } catch (error) {
