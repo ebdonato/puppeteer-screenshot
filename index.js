@@ -38,7 +38,7 @@ async function printScreen() {
         browser = await puppeteer.launch(puppeteerConfig)
         const page = await browser.newPage()
         logger.log(`Going to ${URL}`)
-        await page.goto(URL, { waitUntil: "networkidle0" })
+        await page.goto(URL, { timeout: 300 * 1000, waitUntil: "networkidle0" })
         await page.screenshot({ path: SCREENSHOT_PATH })
         logger.log("File saved")
     } catch (error) {

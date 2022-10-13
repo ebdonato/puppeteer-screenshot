@@ -29,7 +29,7 @@ WORKDIR /usr/src/app
 
 # Install app dependencies
 COPY package*.json .
-RUN npm ci --only=production --no-optional
+RUN npm ci --omit=dev --omit=optional
 
 # Bundle APP files
 COPY index.js .
